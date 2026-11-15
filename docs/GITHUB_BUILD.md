@@ -32,6 +32,13 @@ The workflow triggers on manual dispatch, pushes to `main`, tags, and pull reque
 4. Sign the IPA on your iPad with your own certificate and a signing tool that accepts
    imported `.p12` + `.mobileprovision` files, then install it.
 
+The current successful build is published as a GitHub Release asset:
+
+<https://github.com/jesusxal777-boop/DreamByte-AppHub/releases/tag/unsigned-0.1.0>
+
+That page downloads the IPA directly on the iPad (public repository, no login needed). It is
+still unsigned.
+
 ## Signing on the iPad: what is real
 
 - **You need a valid signing identity.** An Apple Developer Program certificate
@@ -54,10 +61,11 @@ the `itms-services://` link in Safari. That is what the app's OTA screen generat
 
 ## Honest limitations
 
-- The SwiftUI layer has **never been compiled** on the development host. The first CI run is
-  the first real type-check and may reveal errors. The workflow uploads `build.log`, which
-  is enough to fix them iteratively.
-- The workflow uses `macos-15` (Xcode 16.x, iOS 18 SDK). The Liquid Glass code path is
+- The SwiftUI layer was authored on Linux and is now type-checked by CI. The first run
+  failed with four Swift errors and an XcodeGen `info:` block that overwrote the custom
+  `Info.plist`; all five were fixed, and the next run passed. Future changes are still
+  compiled only when the workflow runs.
+- The workflow uses `macos-15` (Xcode 16.4, iOS 18.5 SDK). The Liquid Glass code path is
   guarded by `#if compiler(>=6.2)` / `if #available(iOS 26.0, *)`, so it compiles the
   fallback here. To exercise it, switch `runs-on` to a macOS 26 runner with Xcode 26+.
 - The unsigned IPA has no `embedded.mobileprovision` and no valid signature. It is a build

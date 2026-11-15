@@ -59,8 +59,8 @@ Status legend: ✅ done & tested · 🟡 implemented, not testable here · 🔵 
 - [x] Automated core test suite with IPA/repository/profile fixtures (90 tests, 0 failures on Swift 6.0.3/Linux)
 - [x] Localization parity test across es/en/fr/pt
 - [x] App package manifest valid; `AppHubCore` compiles inside the App target on Linux
-- [x] GitHub Actions workflow for an unsigned IPA on macOS (⬜ not executed yet; first run is the first SwiftUI type-check)
-- [ ] SwiftUI compile on Xcode 26+ (⛔ no macOS/SDK here)
+- [x] GitHub Actions workflow for an unsigned IPA on macOS (✅ run #43700153714 passed)
+- [x] SwiftUI compiles and links for iOS on GitHub Actions (macOS 15, Xcode 16.4) (🟡 Liquid Glass path not compiled)
 - [ ] Device tests on iOS 26/27 (⛔ no device attached)
 - [x] Document untested areas explicitly
 

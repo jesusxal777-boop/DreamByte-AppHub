@@ -63,20 +63,22 @@ Info.plist keys that matter:
 - JIT is a StikDebug handoff. The app cannot read another process's PID, so the handoff
   form asks for it explicitly and states that success is not auto-confirmed.
 
-## Known compile-risks without a Mac
+## Compile status
 
-The SwiftUI layer was authored on Linux and **has not been compiled**. On this host,
-`swift package dump-package` succeeds and `swift build` compiles the `AppHubCore`
-dependency and resource bundle before stopping at `no such module 'SwiftUI'`. Most
-likely first-build adjustment points:
+The SwiftUI layer was authored on Linux and is now compiled by
+`.github/workflows/build-ipa.yml` on a macOS runner. The first run found four Swift errors
+and an XcodeGen `info:` block that replaced the custom `Info.plist`; after fixing them, the
+build passed with Xcode 16.4 / iOS 18.5 SDK and produced an arm64 unsigned IPA. See
+`../docs/VERIFICATION.md` for the run link and details.
 
-- `Tab(value:content:label:)` and `NavigationSplitView` selection bindings
-- Liquid Glass signatures (`glassEffect(_:in:)`) if the SDK differs
-- `UTType(filenameExtension:)` availability for `.ipa` / `.mobileprovision`
-- Swift 6 strict-concurrency diagnostics around `@Observable` + `@MainActor`
+Still unverified without hardware:
 
-The core package is the tested part; treat UI fixes as expected first-build work. See
-`../docs/VERIFICATION.md` for the exact commands and results.
+- runtime behavior of `Tab(value:content:label:)`, `NavigationSplitView` selection, and
+  Liquid Glass (`glassEffect(_:in:)`) only on iOS 26;
+- keychain/p12 access and StikDebug handoff;
+- visual layout with long fr/pt strings, Dynamic Type, and iPad split view.
+
+The core package remains the tested part.
 
 ## Resources
 

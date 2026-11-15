@@ -42,27 +42,31 @@ Coverage by suite:
 | `OTAInstallTests` | Apple manifest shape, HTTPS enforcement, bundle-ID/version validation, `itms-services` link round trip |
 | `InstallModeTests` | Mode availability rules: OTA, identity-gated signing, pairing/Developer Mode bridge, Apple-only gating, ordered recommendations |
 
-## App package — partially verified
+## App package — compiled on macOS CI
 
-```bash
-cd App
-swift package dump-package                    # exit 0, manifest valid
-swift build                                   # Core + resources build; stops at: no such module 'SwiftUI'
-swiftc -frontend -parse $(find Sources -name "*.swift")   # exit 0 (syntax only)
+Linux can only parse the SwiftUI sources, so the real type-check happens on the GitHub
+Actions macOS runner. Run
+[#43700153714](https://github.com/jesusxal777-boop/DreamByte-AppHub/actions/runs/43700153714)
+(commit `e1545f2`) passed:
+
+```text
+Core tests (Linux)               ✓  90 tests, 0 failures
+Build unsigned IPA (macOS)       ✓  Xcode 16.4, iOS 18.5 SDK, arm64
 ```
 
-That is the expected Linux outcome: SwiftPM compiles `CZlib`, `AppHubCore`, copies the
-localization catalogs and `Assets.xcassets`, then fails on the SwiftUI import. All 22 app
-source files also pass `swiftc -frontend -parse`, so they are syntactically valid even
-though no type checking happens. This does confirm:
+The artifact is `DreamByteAppHub-unsigned.ipa` (1.3 MB), built with
+`CODE_SIGNING_ALLOWED=NO`. Its `Info.plist` reports
+`CFBundleIdentifier=com.dreambyte.apphub`, `MinimumOSVersion=18.0`,
+`CFBundleLocalizations=[es,en,fr,pt]`, `UIFileSharingEnabled=true`, and
+`LSApplicationQueriesSchemes=[stikdebug]`.
 
-- the `Core` path dependency and `package: "Core"` product reference resolve correctly;
-- `App/Sources/DreamByteAppHub/Resources/Assets.xcassets` is in the right place for
-  SwiftPM (`Bundle.module`) and for XcodeGen (`project.yml` points at the same folder);
-- the app's `Info.plist` is copied.
+The first run found four Swift errors (`BrandTheme` missing import, an unhandled throw in
+`rescan`, a wrong `L10nKey` case, and `Bundle.module` in the Xcode target) plus an
+XcodeGen `info:` block that silently replaced the custom `Info.plist`. All five were fixed;
+the next run passed.
 
-It does **not** type-check any SwiftUI view, the `Security.framework` p12 importer, or the
-StikDebug URL handling.
+This proves the SwiftUI code type-checks and links for iOS. It does **not** prove runtime
+behavior, visual layout, keychain access, or device installation.
 
 ## Not verified anywhere yet
 
@@ -71,16 +75,13 @@ StikDebug URL handling.
 - The OTA sheet's actual handoff to SpringBoard: manifest generation and link construction are
   tested, but no iOS device was available to confirm that the install prompt appears.
 - The installation-mode UI: the availability planner and persistence keys are tested in Core,
-  but `InstallModeSheet`/`SettingsView` have not been type-checked or run.
+  and `InstallModeSheet`/`SettingsView` now type-check in CI, but they have not been run.
 - `.p12` keychain import, provisioning-profile installation handoff.
 - Installing an IPA directly from the app (public APIs cannot do this; AppHub hands off via OTA
   or exports).
 - JIT activation through StikDebug (handoff URL and prerequisite checks are code-reviewed
   only).
 - Device enumeration beyond AppHub-managed records.
-- The GitHub Actions IPA workflow (`.github/workflows/build-ipa.yml`) has not been executed:
-  this host has no GitHub remote and no macOS runner. Its YAML and packaging script were
-  syntax-checked locally, but the first run is also the first SwiftUI type-check.
 
 ## Fixes made while bringing the build up
 
@@ -95,4 +96,8 @@ StikDebug URL handling.
 | `Tests/LocalizationTests.swift` | Use `LocalizationCatalog.bundledDirectory` instead of the *test* target's `Bundle.module` |
 | `Installation/OTAInstall.swift` | New OTA manifest + `itms-services` module (HTTPS-only, bundle-ID/version validation, percent-encoded link) |
 | `Installation/InstallMode.swift` | New mode planner; availability is data-driven so signing/bridge report `needs…` or `notImplemented` instead of pretending to work |
+| `DesignSystem/BrandColor.swift` | Added the missing `import AppHubCore` for `BrandTheme` |
+| `AppModel.swift` | `rescan` no longer rethrows from inside its `AppHubError` catch block; wrong `L10nKey.requiresSetup` corrected to `.jitRequiresSetup` |
+| `DesignSystem/Components.swift` | Replaced `Bundle.module` (not generated for the XcodeGen app target) with a helper that uses `.main` in Xcode and `.module` under SwiftPM |
+| `App/project.yml` | Removed the XcodeGen `info:` block: it regenerated `App/Info.plist` and silently dropped the custom keys. `INFOPLIST_FILE` now points at the checked-in file unchanged |
 | `App/Package.swift` + assets | Moved `Assets.xcassets` under `Sources/DreamByteAppHub/Resources` so the declared resource exists inside the target; `project.yml` updated to match |

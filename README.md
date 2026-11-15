@@ -63,16 +63,19 @@ DreamByteAppHub/
   localization parity across 4 catalogs, diagnostics redaction, branding overrides, JIT
   handoff models, OTA manifest generation/validation, and the installation-mode
   availability planner.
-- **Partially verified:** `cd App && swift package dump-package` succeeds,
+- **Partially verified on Linux:** `cd App && swift package dump-package` succeeds,
   `swift build` compiles the entire `AppHubCore` dependency and copies the app resources,
   and all 22 SwiftUI source files pass `swiftc -frontend -parse` (syntax only). Type
   checking stops at `no such module 'SwiftUI'`, which is expected on Linux.
-- **Not compiled or run anywhere yet:** every SwiftUI view, the keychain/p12 adapter, the
-  StikDebug URL handoff, and anything requiring an iOS device or the iOS SDK. These need
-  Xcode 26+ on macOS (or xtool with a lawful Xcode installation) plus a real device.
-- **CI workflow added but not executed here:** `.github/workflows/build-ipa.yml` builds an
-  unsigned IPA on a GitHub macOS runner. This host has no GitHub remote, so its first run
-  will also be the first real SwiftUI type-check.
+- **Compiled on GitHub Actions (macOS 15, Xcode 16.4 / iOS 18.5 SDK):** run
+  [#43700153714](https://github.com/jesusxal777-boop/DreamByte-AppHub/actions/runs/43700153714)
+  passed both jobs and produced a 1.3 MB `DreamByteAppHub-unsigned.ipa` (arm64, iOS 18.0
+  minimum, `com.dreambyte.apphub`). The first run exposed four Swift errors and an
+  XcodeGen issue that overwrote the custom `Info.plist`; all five were fixed before this
+  successful build.
+- **Not run on a device yet:** the keychain/p12 importer, the StikDebug URL handoff, OTA
+  installation prompts, and anything that needs an iPhone/iPad. These compile, but only a
+  real device can confirm them.
 
 ## Build
 
