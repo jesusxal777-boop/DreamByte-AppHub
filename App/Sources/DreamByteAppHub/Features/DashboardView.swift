@@ -29,11 +29,16 @@ struct DashboardView: View {
         .refreshable { await model.reload() }
         .fileImporter(
             isPresented: $showIPAImporter,
-            allowedContentTypes: [FileTypes.ipa],
+            allowedContentTypes: FileTypes.ipaImportTypes,
             allowsMultipleSelection: false
         ) { result in
-            guard case let .success(urls) = result, let url = urls.first else { return }
-            Task { await model.importIPA(from: url) }
+            switch result {
+            case let .success(urls):
+                guard let url = urls.first else { return }
+                Task { await model.importIPA(from: url) }
+            case let .failure(error):
+                model.reportImportPickerFailure(error)
+            }
         }
         .sheet(isPresented: $showAddRepository) {
             AddRepositoryView()

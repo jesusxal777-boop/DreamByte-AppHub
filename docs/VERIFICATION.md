@@ -18,7 +18,7 @@ unverified. It exists so the project never claims more than it can demonstrate.
 ```bash
 cd Core
 swift build     # Build complete
-swift test      # Executed 90 tests, with 0 failures
+swift test      # Executed 96 tests, with 0 failures
 ```
 
 The suite uses the binary fixtures in `Core/Tests/AppHubCoreTests/Fixtures` (regenerate
@@ -36,8 +36,9 @@ Coverage by suite:
 | `RepositoryServiceTests` | Fetch, conditional GET (304), persistence, replace/remove, duplicate detection |
 | `DownloadTests` | Validator (size, SHA-256, bundle ID), stale-job recovery, live HTTP download + validation |
 | `SigningTests` | Provisioning-profile CMS extraction, X.509 CN/validity/serial, Codable round trip, store import/remove |
-| `LocalizationTests` | 399 keys in parity across es/en/fr/pt, typed enum generated, runtime lookup |
+| `LocalizationTests` | 407 keys in parity across es/en/fr/pt, typed enum generated, runtime lookup |
 | `AppPackageStoreTests` | Import, replace, rename, delete, persistence, quarantine flags |
+| `IPAImportPreflightTests` | Accepts `.ipa`/`.IPA`, rejects other extensions, missing files, directories, and zero-byte files |
 | `BrandingDiagnosticsJITTEsts` | Brand override loading/fallback, diagnostics redaction, JIT requirement models |
 | `OTAInstallTests` | Apple manifest shape, HTTPS enforcement, bundle-ID/version validation, `itms-services` link round trip |
 | `InstallModeTests` | Mode availability rules: OTA, identity-gated signing, pairing/Developer Mode bridge, Apple-only gating, ordered recommendations |
@@ -50,7 +51,7 @@ Actions macOS runner. Run
 (commit `e1545f2`) passed:
 
 ```text
-Core tests (Linux)               ✓  90 tests, 0 failures
+Core tests (Linux)               ✓  96 tests, 0 failures
 Build unsigned IPA (macOS)       ✓  Xcode 16.4, iOS 18.5 SDK, arm64
 ```
 

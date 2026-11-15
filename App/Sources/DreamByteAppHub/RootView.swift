@@ -29,6 +29,9 @@ struct RootView: View {
         .task {
             await model.bootstrap()
         }
+        .onOpenURL { url in
+            Task { await model.handleIncomingFile(url) }
+        }
         .preferredColorScheme(model.appearance.colorScheme)
         .environment(\.locale, model.locale)
         .tint(model.palette.secondary)

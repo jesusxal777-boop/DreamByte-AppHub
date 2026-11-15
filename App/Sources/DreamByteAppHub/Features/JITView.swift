@@ -37,11 +37,16 @@ struct JITView: View {
         .onAppear { model.refreshJITCapabilities() }
         .fileImporter(
             isPresented: $showPairingImporter,
-            allowedContentTypes: [FileTypes.pairingFile],
+            allowedContentTypes: FileTypes.pairingImportTypes,
             allowsMultipleSelection: false
         ) { result in
-            guard case let .success(urls) = result, let url = urls.first else { return }
-            Task { await model.importPairingFile(from: url) }
+            switch result {
+            case let .success(urls):
+                guard let url = urls.first else { return }
+                Task { await model.importPairingFile(from: url) }
+            case let .failure(error):
+                model.reportImportPickerFailure(error)
+            }
         }
     }
 
@@ -193,8 +198,25 @@ struct JITView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
+                if needsComputerForPairing {
+                    Text(model.t(.jitPairingNote))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 4)
+                }
             }
         }
+    }
+
+    /// On-device pairing was added in iOS/iPadOS 27. Older versions need a
+    /// computer once to create the pairing file, so say it instead of implying
+    /// that everything can be done on the device.
+    private var needsComputerForPairing: Bool {
+        guard let major = Int(DeviceInfo.systemVersion.split(separator: ".").first ?? "") else {
+            return false
+        }
+        return major > 0 && major < 27
     }
 
     private var steps: [String] {

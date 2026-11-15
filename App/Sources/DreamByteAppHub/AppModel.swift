@@ -131,6 +131,7 @@ final class AppModel {
     var banner: BannerMessage?
     var isBootstrapping = true
     var isRefreshingRepositories = false
+    var isImportingIPA = false
 
     let pairingFileURL: URL
 
@@ -241,6 +242,11 @@ final class AppModel {
 
         capabilities.hasPairingFile = FileManager.default.fileExists(atPath: pairingFileURL.path)
         capabilities.canOpenStikDebug = StikDebugLauncher.isInstalled
+
+        // Files can drop IPAs straight into the app's Documents folder
+        // (`UIFileSharingEnabled`). That path does not depend on the document
+        // picker at all, so it still works when a picker filter misbehaves.
+        await importDroppedDocuments()
     }
 
     // MARK: Banner
@@ -273,22 +279,124 @@ final class AppModel {
 
     // MARK: IPA library
 
+    /// Errors detected before a file is copied, so the user gets a specific
+    /// message instead of a generic file-read failure.
+    private enum IPAImportProblem: Error {
+        case wrongExtension
+        case notAFile
+        case emptyFile
+        case cloudPlaceholder
+
+        var key: L10nKey {
+            switch self {
+            case .wrongExtension: .ipaWrongType
+            case .notAFile: .ipaNotAFile
+            case .emptyFile: .ipaEmptyFile
+            case .cloudPlaceholder: .ipaCloudPlaceholder
+            }
+        }
+    }
+
     func importIPA(from url: URL) async {
+        guard !isImportingIPA else { return }
+        isImportingIPA = true
+        defer { isImportingIPA = false }
+
         #if os(iOS)
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         #endif
+
         do {
+            try validateIPA(at: url)
             let package = try await packageStore.importPackage(from: url)
-            packages = try await packageStore.all()
+            packages = (try? await packageStore.all()) ?? packages
             if package.failure == nil {
                 showBanner(t(.ipaImportSuccess), style: .success)
             } else {
                 showBanner(t(.ipaInspectionFailed), style: .error)
             }
+        } catch let problem as IPAImportProblem {
+            showBanner(t(problem.key), style: .error)
         } catch {
             showBanner(errorText(error), style: .error)
         }
+    }
+
+    /// Called when the document picker itself fails. Cancellation is silent;
+    /// every other error is shown instead of being swallowed.
+    func reportImportPickerFailure(_ error: Error) {
+        let nsError = error as NSError
+        if nsError.domain == NSCocoaErrorDomain, nsError.code == CocoaError.Code.userCancelled.rawValue {
+            return
+        }
+        showBanner("\(t(.ipaImportPickerFailed)) \(error.localizedDescription)", style: .error)
+    }
+
+    /// Handles a document opened from Files, the share sheet, or drag and drop.
+    func handleIncomingFile(_ url: URL) async {
+        guard url.isFileURL else { return }
+        if url.pathExtension.lowercased() == "ipa" {
+            await importIPA(from: url)
+        }
+    }
+
+    private func validateIPA(at url: URL) throws {
+        switch IPAImportPreflight.check(url) {
+        case .ready:
+            break
+        case .wrongExtension:
+            throw IPAImportProblem.wrongExtension
+        case .notAFile:
+            throw IPAImportProblem.notAFile
+        case .emptyFile:
+            throw IPAImportProblem.emptyFile
+        }
+
+        #if os(iOS)
+        // An iCloud placeholder looks like a file but has no local bytes yet.
+        if let values = try? url.resourceValues(
+            forKeys: [.isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey]
+        ), values.isUbiquitousItem == true,
+           let status = values.ubiquitousItemDownloadingStatus,
+           status != .current {
+            throw IPAImportProblem.cloudPlaceholder
+        }
+        #endif
+    }
+
+    /// Imports any IPA copied into the app's Documents folder (visible in
+    /// Files because `UIFileSharingEnabled` is on), then moves it to
+    /// `Documents/Imported` so it is not imported twice.
+    private func importDroppedDocuments() async {
+        #if os(iOS)
+        let manager = FileManager.default
+        guard let documents = try? manager.url(
+            for: .documentDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        ) else { return }
+
+        let entries = (try? manager.contentsOfDirectory(
+            at: documents,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+        )) ?? []
+        let candidates = entries.filter { $0.pathExtension.lowercased() == "ipa" }
+        guard !candidates.isEmpty else { return }
+
+        let archive = documents.appendingPathComponent("Imported", isDirectory: true)
+        for url in candidates {
+            await importIPA(from: url)
+            try? manager.createDirectory(at: archive, withIntermediateDirectories: true)
+            var destination = archive.appendingPathComponent(url.lastPathComponent)
+            if manager.fileExists(atPath: destination.path) {
+                destination = archive.appendingPathComponent("\(UUID().uuidString)-\(url.lastPathComponent)")
+            }
+            try? manager.moveItem(at: url, to: destination)
+        }
+        #endif
     }
 
     func rescan(_ package: AppPackage) async {

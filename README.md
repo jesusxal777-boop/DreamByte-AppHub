@@ -42,12 +42,13 @@ DreamByteAppHub/
 | Area | Status |
 |---|---|
 | IPA inspection (ZIP64, CRC, traversal/bomb limits, XML + binary `Info.plist`, Mach-O slices, FairPlay flag, signature/profile presence, icon extraction) | **Implemented and unit-tested on Linux** |
+| IPA import (declared `.ipa` UTI, document types, open-in route, tolerant picker, Documents-folder fallback, preflight validation) | **Implemented; type-checked on macOS CI, runtime unverified** — see [`docs/IMPORT_AND_JIT.md`](docs/IMPORT_AND_JIT.md) |
 | AltSource v2 repositories (conditional GET, validation, duplicate detection, persistence, stale-data handling) | **Implemented and unit-tested on Linux** |
 | Downloads (progress, cancel, size/SHA-256/bundle-ID validation, quarantine) | **Implemented; end-to-end test downloads from a real local HTTP server on Linux** |
 | Provisioning profiles + X.509 summaries (dates, team, devices, entitlements, fingerprints) | **Implemented and unit-tested on Linux** |
 | Runtime localization (es/en/fr/pt), parity-tested | **Implemented and unit-tested on Linux** |
 | Diagnostics report with path redaction | **Implemented and unit-tested on Linux** |
-| SwiftUI screens, Liquid Glass, iPad split view | **Written; Core linkage and resources verified on Linux, UI not compiled** (needs Xcode 26+/SwiftUI) |
+| SwiftUI screens, Liquid Glass, iPad split view | **Compiled and linked for iOS on macOS CI**; runtime layout and the iOS 26 Liquid Glass path are unverified |
 | `.p12` import into the keychain | **Implemented with Security.framework; untested without a device** |
 | JIT handoff to StikDebug | **Implemented as a URL handoff; cannot verify JIT activation** |
 | Installing IPAs | **OTA handoff implemented** — AppHub generates `manifest.plist` / opens `itms-services://`; iOS installs. Direct in-app install is not possible and signing/hosting stay with you |
@@ -57,11 +58,12 @@ DreamByteAppHub/
 ### Tested vs. untested
 
 - **Tested on this Linux host (Swift 6.0.3, Ubuntu 24.04):** `cd Core && swift build && swift test`
-  → **90 tests, 0 failures**. Covers ZIP64/CRC/traversal, IPA inspection, Mach-O and
-  `Info.plist` parsing, AltSource decoding/validation/persistence, conditional GET against a
-  real local HTTP server, the full download path, provisioning-profile and X.509 parsing,
-  localization parity across 4 catalogs, diagnostics redaction, branding overrides, JIT
-  handoff models, OTA manifest generation/validation, and the installation-mode
+  → **96 tests, 0 failures**. Covers ZIP64/CRC/traversal, IPA inspection, Mach-O and
+  `Info.plist` parsing, import preflight (extension, missing file, directory, empty
+  file), AltSource decoding/validation/persistence, conditional GET against a real
+  local HTTP server, the full download path, provisioning-profile and X.509 parsing,
+  localization parity across 4 catalogs, diagnostics redaction, branding overrides,
+  JIT handoff models, OTA manifest generation/validation, and the installation-mode
   availability planner.
 - **Partially verified on Linux:** `cd App && swift package dump-package` succeeds,
   `swift build` compiles the entire `AppHubCore` dependency and copies the app resources,
@@ -88,7 +90,7 @@ swift test
 ```
 
 Swift 6.0+ is enough for the core package; verified with Swift 6.0.3 on Linux
-(90 tests, 0 failures). No third-party runtime dependencies.
+(96 tests, 0 failures). No third-party runtime dependencies.
 
 Regenerate the typed localization enum after editing the JSON catalogs:
 
@@ -133,8 +135,11 @@ artifact. An unsigned IPA is not installable: sign it on your iPad with your own
 and provisioning profile. AppHub provides no certificates and does not bypass revocation.
 
 See [`docs/GITHUB_BUILD.md`](docs/GITHUB_BUILD.md) for the full steps, signing constraints,
-and honest limitations (the SwiftUI code has not been compiled yet; the first CI run is the
-first real type-check).
+and honest limitations. The SwiftUI layer now compiles on the macOS runner; runtime
+behavior still needs a device.
+
+For the import paths and the JIT/pairing matrix, see
+[`docs/IMPORT_AND_JIT.md`](docs/IMPORT_AND_JIT.md).
 
 ## Localization
 

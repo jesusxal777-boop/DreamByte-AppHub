@@ -56,7 +56,7 @@ Status legend: ✅ done & tested · 🟡 implemented, not testable here · 🔵 
 
 ## Phase 6 — Testing (🔵)
 
-- [x] Automated core test suite with IPA/repository/profile fixtures (90 tests, 0 failures on Swift 6.0.3/Linux)
+- [x] Automated core test suite with IPA/repository/profile fixtures (96 tests, 0 failures on Swift 6.0.3/Linux)
 - [x] Localization parity test across es/en/fr/pt
 - [x] App package manifest valid; `AppHubCore` compiles inside the App target on Linux
 - [x] GitHub Actions workflow for an unsigned IPA on macOS (✅ run #43700153714 passed)

@@ -12,7 +12,7 @@ share certificates, and does not bypass Apple revocation checks.
 
 Workflow: `.github/workflows/build-ipa.yml`
 
-1. **`core-tests`** (Ubuntu): installs Swift 6.0.3 and runs `swift test` in `Core/` (90 tests).
+1. **`core-tests`** (Ubuntu): installs Swift 6.0.3 and runs `swift test` in `Core/` (96 tests).
 2. **`build-ipa`** (macOS):
    - installs XcodeGen;
    - validates the localization catalog (`tools/generate_localization.py --check`);

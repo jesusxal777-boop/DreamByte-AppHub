@@ -19,6 +19,16 @@ struct IPALibraryView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
+                if model.isImportingIPA {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text(model.t(.ipaImporting))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
                 if filtered.isEmpty {
                     EmptyStateView(
                         symbol: "shippingbox",
@@ -28,6 +38,13 @@ struct IPALibraryView: View {
                         action: { showImporter = true }
                     )
                     .padding(.top, 24)
+                    Text(model.t(.ipaFolderHint))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: 420)
+                        .padding(.horizontal, 8)
                 } else {
                     ForEach(filtered) { package in
                         NavigationLink {
@@ -51,17 +68,27 @@ struct IPALibraryView: View {
                 Button {
                     showImporter = true
                 } label: {
-                    Label(model.t(.ipaImport), systemImage: "plus")
+                    if model.isImportingIPA {
+                        ProgressView()
+                    } else {
+                        Label(model.t(.ipaImport), systemImage: "plus")
+                    }
                 }
+                .disabled(model.isImportingIPA)
             }
         }
         .fileImporter(
             isPresented: $showImporter,
-            allowedContentTypes: [FileTypes.ipa],
+            allowedContentTypes: FileTypes.ipaImportTypes,
             allowsMultipleSelection: false
         ) { result in
-            guard case let .success(urls) = result, let url = urls.first else { return }
-            Task { await model.importIPA(from: url) }
+            switch result {
+            case let .success(urls):
+                guard let url = urls.first else { return }
+                Task { await model.importIPA(from: url) }
+            case let .failure(error):
+                model.reportImportPickerFailure(error)
+            }
         }
     }
 }

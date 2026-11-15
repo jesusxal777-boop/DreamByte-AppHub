@@ -67,19 +67,29 @@ struct CertificatesView: View {
         }
         .fileImporter(
             isPresented: $showProfileImporter,
-            allowedContentTypes: [FileTypes.provisioningProfile],
+            allowedContentTypes: FileTypes.provisioningImportTypes,
             allowsMultipleSelection: false
         ) { result in
-            guard case let .success(urls) = result, let url = urls.first else { return }
-            Task { await model.importProfile(from: url) }
+            switch result {
+            case let .success(urls):
+                guard let url = urls.first else { return }
+                Task { await model.importProfile(from: url) }
+            case let .failure(error):
+                model.reportImportPickerFailure(error)
+            }
         }
         .fileImporter(
             isPresented: $showP12Importer,
-            allowedContentTypes: [FileTypes.pkcs12],
+            allowedContentTypes: FileTypes.pkcs12ImportTypes,
             allowsMultipleSelection: false
         ) { result in
-            guard case let .success(urls) = result, let url = urls.first else { return }
-            pendingP12 = PendingP12(url: url)
+            switch result {
+            case let .success(urls):
+                guard let url = urls.first else { return }
+                pendingP12 = PendingP12(url: url)
+            case let .failure(error):
+                model.reportImportPickerFailure(error)
+            }
         }
         .sheet(item: $pendingP12) { selection in
             P12PasswordView(fileURL: selection.url)
