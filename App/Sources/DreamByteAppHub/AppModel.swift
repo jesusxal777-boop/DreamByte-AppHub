@@ -305,7 +305,7 @@ final class AppModel {
             var updated = package
             updated.failure = PackageFailure(error: error)
             try? await packageStore.replace(updated)
-            packages = try await packageStore.all()
+            packages = (try? await packageStore.all()) ?? packages
             showBanner(errorText(error), style: .error)
         } catch {
             showBanner(error.localizedDescription, style: .error)
@@ -674,7 +674,7 @@ final class AppModel {
             ),
             DiagnosticModule(
                 name: t(.diagnosticsModuleJIT),
-                status: capabilities.hasPairingFile ? t(.commonSuccess) : t(.requiresSetup),
+                status: capabilities.hasPairingFile ? t(.commonSuccess) : t(.jitRequiresSetup),
                 detail: capabilities.canOpenStikDebug ? t(.jitInstalled) : t(.jitNotInstalled)
             ),
             DiagnosticModule(

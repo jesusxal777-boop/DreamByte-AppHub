@@ -1,4 +1,5 @@
 import SwiftUI
+import AppHubCore
 
 /// Private DreamByte palette helper. All values come from `BrandTheme`; this
 /// file only converts hex strings into SwiftUI colors.

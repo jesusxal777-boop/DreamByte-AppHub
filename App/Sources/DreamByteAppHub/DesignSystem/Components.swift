@@ -4,6 +4,16 @@ import AppHubCore
 import UIKit
 #endif
 
+/// Assets live in the main bundle in the Xcode app target, and in the SwiftPM
+/// resource bundle when the app is built through `Package.swift`.
+private var appAssetBundle: Bundle {
+    #if SWIFT_PACKAGE
+    Bundle.module
+    #else
+    Bundle.main
+    #endif
+}
+
 // MARK: - Section header
 
 struct SectionHeader: View {
@@ -199,7 +209,7 @@ struct BrandMarkView: View {
     var body: some View {
         ZStack {
             #if canImport(UIKit)
-            if let image = UIImage(named: theme.logoAssetName, in: .module, compatibleWith: nil) {
+            if let image = UIImage(named: theme.logoAssetName, in: appAssetBundle, compatibleWith: nil) {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
