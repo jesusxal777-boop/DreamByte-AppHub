@@ -29,8 +29,6 @@ targets:
     dependencies:
       - package: Core
         product: AppHubCore
-    info:
-      path: Info.plist
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.dreambyte.apphub
