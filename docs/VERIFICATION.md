@@ -47,8 +47,8 @@ Coverage by suite:
 
 Linux can only parse the SwiftUI sources, so the real type-check happens on the GitHub
 Actions macOS runner. Run
-[#43700153714](https://github.com/jesusxal777-boop/DreamByte-AppHub/actions/runs/43700153714)
-(commit `e1545f2`) passed:
+[#43702717542](https://github.com/jesusxal777-boop/DreamByte-AppHub/actions/runs/43702717542)
+(commit `7091504`) passed:
 
 ```text
 Core tests (Linux)               ✓  96 tests, 0 failures
@@ -57,17 +57,34 @@ Build unsigned IPA (macOS)       ✓  Xcode 16.4, iOS 18.5 SDK, arm64
 
 The artifact is `DreamByteAppHub-unsigned.ipa` (1.3 MB), built with
 `CODE_SIGNING_ALLOWED=NO`. Its `Info.plist` reports
-`CFBundleIdentifier=com.dreambyte.apphub`, `MinimumOSVersion=18.0`,
-`CFBundleLocalizations=[es,en,fr,pt]`, `UIFileSharingEnabled=true`, and
-`LSApplicationQueriesSchemes=[stikdebug]`.
+`CFBundleIdentifier=com.dreambyte.apphub`, `CFBundleShortVersionString=0.1.1`,
+`MinimumOSVersion=18.0`, `CFBundleLocalizations=[es,en,fr,pt]`,
+`UIFileSharingEnabled=true`, `LSApplicationQueriesSchemes=[stikdebug]`, plus the
+`com.dreambyte.apphub.ipa` imported type and its `CFBundleDocumentTypes` entry.
 
-The first run found four Swift errors (`BrandTheme` missing import, an unhandled throw in
-`rescan`, a wrong `L10nKey` case, and `Bundle.module` in the Xcode target) plus an
-XcodeGen `info:` block that silently replaced the custom `Info.plist`. All five were fixed;
-the next run passed.
+The first build run found four Swift errors (`BrandTheme` missing import, an unhandled
+throw in `rescan`, a wrong `L10nKey` case, and `Bundle.module` in the Xcode target) plus
+an XcodeGen `info:` block that silently replaced the custom `Info.plist`. All five were
+fixed; later runs passed.
 
-This proves the SwiftUI code type-checks and links for iOS. It does **not** prove runtime
-behavior, visual layout, keychain access, or device installation.
+### IPA import fix (0.1.1)
+
+The import path was hardened after the first release:
+
+- `App/Info.plist` now declares `com.dreambyte.apphub.ipa` (extension `ipa`, conforms to
+  `public.data`/`public.archive`) and a `CFBundleDocumentTypes` viewer entry.
+- `FileTypes` resolves the declared type and includes `.data` in every picker as a
+  fallback, because Files may type an IPA as generic data or ZIP.
+- `AppModel.importIPA` validates the selection, reports specific errors, and exposes an
+  `isImportingIPA` state. Picker failures are no longer swallowed.
+- `RootView` handles `.onOpenURL` for open-in/share-sheet imports.
+- IPAs copied into the app's Documents folder are imported at launch and moved to
+  `Documents/Imported`.
+- Core gains `IPAImportPreflight`, covered by six Linux tests.
+
+This proves the new code type-checks and links for iOS. It does **not** prove that a real
+Files picker returns an IPA on a device, nor runtime behavior, visual layout, keychain
+access, or device installation.
 
 ## Not verified anywhere yet
 

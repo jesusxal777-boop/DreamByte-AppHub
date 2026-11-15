@@ -34,10 +34,11 @@ The workflow triggers on manual dispatch, pushes to `main`, tags, and pull reque
 
 The current successful build is published as a GitHub Release asset:
 
-<https://github.com/jesusxal777-boop/DreamByte-AppHub/releases/tag/unsigned-0.1.0>
+<https://github.com/jesusxal777-boop/DreamByte-AppHub/releases/tag/unsigned-0.1.1>
 
 That page downloads the IPA directly on the iPad (public repository, no login needed). It is
-still unsigned.
+still unsigned. Version 0.1.1 includes the IPA import fix described in
+[`IMPORT_AND_JIT.md`](IMPORT_AND_JIT.md).
 
 ## Signing on the iPad: what is real
 

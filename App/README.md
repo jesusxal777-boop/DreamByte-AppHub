@@ -44,13 +44,15 @@ Info.plist keys that matter:
 | Key | Why |
 |---|---|
 | `LSApplicationQueriesSchemes = [stikdebug]` | Required for `canOpenURL("stikdebug://")` and the JIT handoff |
-| `UIFileSharingEnabled`, `LSSupportsOpeningDocumentsInPlace` | Lets users drop IPAs into the app's Documents folder |
+| `UTImportedTypeDeclarations` + `CFBundleDocumentTypes` | Declares `com.dreambyte.apphub.ipa` so Files can match/open `.ipa` files |
+| `UIFileSharingEnabled`, `LSSupportsOpeningDocumentsInPlace` | Lets users drop IPAs into the app's Documents folder; they are imported at launch |
 | `CFBundleLocalizations = [es,en,fr,pt]` | Declares the supported languages to iOS |
 | `UILaunchScreen` | Uses `LaunchBackground` from the asset catalog |
 
 ## What is real vs. handed off
 
-- Imported IPAs are copied, inspected, and quarantined locally.
+- Imported IPAs are copied, inspected, and quarantined locally. They can arrive through the
+  document picker, the Files/share sheet (`.onOpenURL`), or the app's Documents folder.
 - `.mobileprovision` files are parsed locally (CMS payload, dates, entitlements, devices).
 - `.p12` files are imported into the keychain through `SecPKCS12Import`; the password is
   never persisted.
@@ -68,8 +70,9 @@ Info.plist keys that matter:
 The SwiftUI layer was authored on Linux and is now compiled by
 `.github/workflows/build-ipa.yml` on a macOS runner. The first run found four Swift errors
 and an XcodeGen `info:` block that replaced the custom `Info.plist`; after fixing them, the
-build passed with Xcode 16.4 / iOS 18.5 SDK and produced an arm64 unsigned IPA. See
-`../docs/VERIFICATION.md` for the run link and details.
+build passed with Xcode 16.4 / iOS 18.5 SDK and produced an arm64 unsigned IPA. Version
+0.1.1 adds the declared `.ipa` UTI, document types, picker fallbacks, and the
+Documents-folder import path. See `../docs/VERIFICATION.md` for the run link and details.
 
 Still unverified without hardware:
 

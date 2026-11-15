@@ -70,11 +70,11 @@ DreamByteAppHub/
   and all 22 SwiftUI source files pass `swiftc -frontend -parse` (syntax only). Type
   checking stops at `no such module 'SwiftUI'`, which is expected on Linux.
 - **Compiled on GitHub Actions (macOS 15, Xcode 16.4 / iOS 18.5 SDK):** run
-  [#43700153714](https://github.com/jesusxal777-boop/DreamByte-AppHub/actions/runs/43700153714)
+  [#43702717542](https://github.com/jesusxal777-boop/DreamByte-AppHub/actions/runs/43702717542)
   passed both jobs and produced a 1.3 MB `DreamByteAppHub-unsigned.ipa` (arm64, iOS 18.0
-  minimum, `com.dreambyte.apphub`). The first run exposed four Swift errors and an
-  XcodeGen issue that overwrote the custom `Info.plist`; all five were fixed before this
-  successful build.
+  minimum, `com.dreambyte.apphub`, version 0.1.1). The first run exposed four Swift errors
+  and an XcodeGen issue that overwrote the custom `Info.plist`; all five were fixed. The
+  latest run also includes the declared `.ipa` UTI and document types for import.
 - **Not run on a device yet:** the keychain/p12 importer, the StikDebug URL handoff, OTA
   installation prompts, and anything that needs an iPhone/iPad. These compile, but only a
   real device can confirm them.

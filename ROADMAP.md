@@ -43,13 +43,14 @@ Status legend: ✅ done & tested · 🟡 implemented, not testable here · 🔵 
 
 ## Phase 5 — iOS integration (🔵)
 
-- [x] Document import and security-scoped copies
+- [x] Document import and security-scoped copies (✅ declared `.ipa` UTI, document types, open-in, tolerant picker, Documents-folder fallback; runtime unverified)
 - [x] Keychain-backed p12 import adapter (🟡 Apple-only)
 - [x] StikDebug handoff + prerequisite checks (🟡 device-only)
 - [x] App library: AppHub-managed records + honest unavailable state (🟡 private enumeration deferred)
 - [x] Share/export flows
 - [x] OTA installation handoff (`manifest.plist` generation + `itms-services://`) (🟡 device-only verification)
-- [x] Selectable installation modes with an honest availability planner (OTA, local signing, device bridge, external tool) (🟡 UI not type-checked)
+- [x] Selectable installation modes with an honest availability planner (OTA, local signing, device bridge, external tool) (🟡 type-checked, not run)
+- [x] JIT pairing-requirement matrix documented (✅ on-device pairing needs iPadOS 27; 26.6.1 needs a one-time computer)
 - [ ] Local on-device signing pipeline (Mach-O re-sign + CMS/PKCS#7) (⬜)
 - [ ] Real device installation bridge (pairing + loopback + installation_proxy) (⬜)
 - [ ] Built-in StikJIT helper (⬜, AGPL + Xcode required)
@@ -59,7 +60,7 @@ Status legend: ✅ done & tested · 🟡 implemented, not testable here · 🔵 
 - [x] Automated core test suite with IPA/repository/profile fixtures (96 tests, 0 failures on Swift 6.0.3/Linux)
 - [x] Localization parity test across es/en/fr/pt
 - [x] App package manifest valid; `AppHubCore` compiles inside the App target on Linux
-- [x] GitHub Actions workflow for an unsigned IPA on macOS (✅ run #43700153714 passed)
+- [x] GitHub Actions workflow for an unsigned IPA on macOS (✅ run #43702717542 passed)
 - [x] SwiftUI compiles and links for iOS on GitHub Actions (macOS 15, Xcode 16.4) (🟡 Liquid Glass path not compiled)
 - [ ] Device tests on iOS 26/27 (⛔ no device attached)
 - [x] Document untested areas explicitly
