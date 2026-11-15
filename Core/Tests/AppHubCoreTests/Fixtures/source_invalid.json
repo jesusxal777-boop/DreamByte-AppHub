@@ -1,0 +1,16 @@
+{
+  "name": "Broken Source",
+  "identifier": "com.dreambyte.broken",
+  "apps": [
+    {
+      "name": "Broken App",
+      "bundleIdentifier": "com.dreambyte.broken.app",
+      "versions": [
+        {
+          "version": "",
+          "downloadURL": "file:///etc/passwd"
+        }
+      ]
+    }
+  ]
+}

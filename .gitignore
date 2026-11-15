@@ -1,0 +1,19 @@
+# SwiftPM build output
+.build/
+.swiftpm/
+Package.resolved
+
+# Local IPA packaging
+dist/
+App/build/
+App/build.log
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# OS noise
+.DS_Store

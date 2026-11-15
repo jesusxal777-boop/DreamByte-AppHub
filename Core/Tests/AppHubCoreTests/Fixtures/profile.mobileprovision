@@ -1,0 +1,59 @@
+-----BEGIN CMS-----
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AppIDName</key>
+	<string>DreamByte Test App</string>
+	<key>CreationDate</key>
+	<date>2026-01-01T00:00:00Z</date>
+	<key>DeveloperCertificates</key>
+	<array>
+		<data>
+		MIIDBjCCAe6gAwIBAgIUUnJP5sVf0cN4riQQHyP2s5+dspEwDQYJKoZIhvcN
+		AQELBQAwPTEfMB0GA1UEAwwWRHJlYW1CeXRlIFRlc3QgU2lnbmluZzEaMBgG
+		A1UECgwRRHJlYW1CeXRlIFN0dWRpb3MwHhcNMjYwMTAxMDAwMDAwWhcNMjcw
+		MTAxMDAwMDAwWjA9MR8wHQYDVQQDDBZEcmVhbUJ5dGUgVGVzdCBTaWduaW5n
+		MRowGAYDVQQKDBFEcmVhbUJ5dGUgU3R1ZGlvczCCASIwDQYJKoZIhvcNAQEB
+		BQADggEPADCCAQoCggEBALbn+DSJZcjo5saIg0uFAyArdAJtpUSeu+hiOPVX
+		jeay5JKXkQm4l8J9AsgYJPpMtxZ1REzmUXY8p9g01OEr5faPHiKVbjXr3dk6
+		K62oWTjBF2fQl0gv5Wmb2s0qlXkFNeNIcc9MAQtRQ9t6sSF9H6btqposAbhP
+		NKNcmRzFfU9d4732tZipOcBpTXb1YWGv4qxNxF+PjNqsWTIuhMNnqkAIc/eX
+		PtnXJVZO4nkQVMgHVwcznkIMhwkxkDXoYHwewlfB4ngXTQ/RDTqdMXmVOmM+
+		hHzuVE/IKQDGseCSFjnDA/LwOKwNzoT+pDXvyvpikAWnSq8OThNiPoMYPdPo
+		83ECAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAerB9VlefeB9DUpQ5wbyMdKnr
+		fvHQq6V+QBSOWsR8ni4VFMSuAtEuH0pXHMqibvAlX56UbHniM5WMRP4lka/O
+		w0QiskpyEBK2FmF1zDAll79LBdgN6BdxcsQn2/LKmWXjoir3rQtjPNdR3NkW
+		hvgmPW5KM0GOLIIldHSrZlZStKoLO0ukT+2q39NZ8YXR/4HMic/ZEDsVu+76
+		pMtJnbqex8KziVJ6zUBYf0gCyPRquJO5ztM1g21pYwsvKAkVf6UzWNrifimj
+		AN+NwkkJINMsPbxXthKz79RZPNfnSCCytYiWJL21u06qxutY20eYOSnntZPC
+		t/URFtYBXqXB1FJ07Q==
+		</data>
+	</array>
+	<key>Entitlements</key>
+	<dict>
+		<key>application-identifier</key>
+		<string>DBYTE12345.com.dreambyte.testapp</string>
+		<key>com.apple.developer.team-identifier</key>
+		<string>DBYTE12345</string>
+		<key>get-task-allow</key>
+		<true/>
+	</dict>
+	<key>ExpirationDate</key>
+	<date>2027-01-01T00:00:00Z</date>
+	<key>Name</key>
+	<string>DreamByte Test Profile</string>
+	<key>ProvisionedDevices</key>
+	<array>
+		<string>00008110-001234567890001E</string>
+	</array>
+	<key>TeamIdentifier</key>
+	<array>
+		<string>DBYTE12345</string>
+	</array>
+	<key>TeamName</key>
+	<string>DreamByte Studios</string>
+</dict>
+</plist>
+
+-----END CMS-----

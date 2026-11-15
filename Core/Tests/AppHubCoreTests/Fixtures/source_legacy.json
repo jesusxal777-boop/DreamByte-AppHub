@@ -1,0 +1,15 @@
+{
+  "name": "Legacy Source",
+  "identifier": "com.dreambyte.legacy",
+  "apps": [
+    {
+      "name": "Legacy App",
+      "bundleIdentifier": "com.dreambyte.legacy.app",
+      "version": "0.9",
+      "versionDate": "2025-01-01",
+      "versionDescription": "Legacy format.",
+      "downloadURL": "https://example.com/legacy.ipa",
+      "size": 99
+    }
+  ]
+}

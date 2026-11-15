@@ -1,0 +1,120 @@
+name: Build unsigned IPA
+
+# Builds the app on a GitHub-hosted macOS runner and uploads an *unsigned* IPA.
+# The IPA must still be signed with your own certificate and provisioning
+# profile (for example on an iPad with a signing tool). AppHub ships no keys.
+#
+# Free macOS minutes apply to public repositories; private repositories consume
+# minutes at GitHub's macOS multiplier.
+
+on:
+  workflow_dispatch:
+    inputs:
+      configuration:
+        description: Build configuration
+        type: choice
+        options:
+          - Release
+          - Debug
+        default: Release
+      bundle_identifier:
+        description: Optional bundle ID override (must match your provisioning profile)
+        required: false
+        default: ""
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core-tests:
+    name: Core tests (Linux)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Swift 6.0.3
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "6.0.3"
+
+      - name: Run AppHubCore tests
+        working-directory: Core
+        run: swift test
+
+  build-ipa:
+    name: Build unsigned IPA (macOS)
+    runs-on: macos-15
+    needs: core-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Check localization catalog
+        run: python3 tools/generate_localization.py --check
+
+      - name: Generate Xcode project
+        working-directory: App
+        run: xcodegen generate
+
+      - name: Build app without code signing
+        working-directory: App
+        env:
+          CONFIGURATION: ${{ inputs.configuration || 'Release' }}
+          BUNDLE_ID: ${{ inputs.bundle_identifier }}
+        run: |
+          set -o pipefail
+          args=(
+            -project DreamByteAppHub.xcodeproj
+            -scheme DreamByteAppHub
+            -configuration "$CONFIGURATION"
+            -sdk iphoneos
+            -destination "generic/platform=iOS"
+            -derivedDataPath build
+            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_REQUIRED=NO
+            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_ENTITLEMENTS=""
+          )
+          if [[ -n "${BUNDLE_ID:-}" ]]; then
+            args+=("PRODUCT_BUNDLE_IDENTIFIER=$BUNDLE_ID")
+          fi
+          xcodebuild "${args[@]}" build | tee build.log
+
+      - name: Package unsigned IPA
+        env:
+          CONFIGURATION: ${{ inputs.configuration || 'Release' }}
+        run: bash tools/package_unsigned_ipa.sh
+
+      - name: Inspect IPA
+        run: |
+          unzip -l dist/DreamByteAppHub-unsigned.ipa | head -20
+          echo "--- signature check (expected: not signed) ---"
+          codesign -dv dist/Payload/DreamByteAppHub.app || true
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: DreamByteAppHub-unsigned-ipa
+          path: dist/DreamByteAppHub-unsigned.ipa
+          if-no-files-found: error
+
+      - name: Upload xcodebuild log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: App/build.log
+          if-no-files-found: ignore

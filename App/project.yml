@@ -1,0 +1,45 @@
+# XcodeGen spec. Optional convenience for opening the app in Xcode without
+# hand-maintaining a .xcodeproj.
+#
+#   brew install xcodegen   # or: mint run yonaskolb/XcodeGen
+#   cd App && xcodegen generate && open DreamByteAppHub.xcodeproj
+name: DreamByteAppHub
+options:
+  bundleIdPrefix: com.dreambyte
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+packages:
+  Core:
+    path: ../Core
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+targets:
+  DreamByteAppHub:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: Sources/DreamByteAppHub
+    dependencies:
+      - package: Core
+        product: AppHubCore
+    info:
+      path: Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dreambyte.apphub
+        PRODUCT_NAME: DreamByteAppHub
+        INFOPLIST_FILE: Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        ENABLE_PREVIEWS: YES

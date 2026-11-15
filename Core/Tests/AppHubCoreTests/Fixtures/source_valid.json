@@ -1,0 +1,28 @@
+{
+  "name": "DreamByte Test Source",
+  "identifier": "com.dreambyte.testsource",
+  "sourceURL": "https://example.com/apps.json",
+  "apps": [
+    {
+      "name": "Test App",
+      "bundleIdentifier": "com.dreambyte.testapp",
+      "developerName": "DreamByte Studios",
+      "subtitle": "Fixture application",
+      "localizedDescription": "A fixture used by automated tests.",
+      "iconURL": "https://example.com/icon.png",
+      "tintColor": "2E7DFF",
+      "versions": [
+        {
+          "version": "1.2.3",
+          "date": "2026-01-01",
+          "localizedDescription": "Initial release.",
+          "downloadURL": "https://example.com/TestApp.ipa",
+          "size": 12345,
+          "minOSVersion": "18.0"
+        }
+      ],
+      "beta": false
+    }
+  ],
+  "news": []
+}
